@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Free Ways to Deploy Your Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0e0f13;
+      --surface: #16181f;
+      --border: #2a2d38;
+      --accent: #e8c97a;
+      --accent2: #6ee7b7;
+      --accent3: #93c5fd;
+      --text: #e8e9ed;
+      --muted: #6b7280;
+      --tag-bg: #1e2130;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Lato', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 24px 100px;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 64px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 40px;
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.1s;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--text);
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.25s;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      margin-top: 16px;
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.7;
+      max-width: 600px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.4s;
+    }
+
+    /* Section headers */
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      margin-top: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 28px 24px;
+      transition: border-color 0.25s, transform 0.25s;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--card-accent, var(--accent));
+      border-radius: 3px 0 0 3px;
+    }
+
+    .card:hover {
+      border-color: var(--card-accent, var(--accent));
+      transform: translateX(4px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--tag-bg);
+      color: var(--card-accent, var(--accent));
+      border: 1px solid var(--card-accent, var(--accent));
+      white-space: nowrap;
+      opacity: 0.85;
+    }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    .card-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .link-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--accent3);
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .link-btn:hover {
+      background: #1e2a38;
+      border-color: var(--accent3);
+      color: #fff;
+    }
+
+    .link-btn.primary {
+      background: #1a2310;
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    .link-btn.primary:hover {
+      background: #1e3018;
+      color: #fff;
+    }
+
+    /* GitHub steps */
+    .steps {
+      counter-reset: steps;
+      display: grid;
+      gap: 0;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 0 20px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .step-number {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .step-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--tag-bg);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .step-line {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      margin: 4px auto 0;
+      min-height: 24px;
+    }
+
+    .step:last-child .step-line {
+      display: none;
+    }
+
+    .step-body {
+      padding-bottom: 32px;
+    }
+
+    .step-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 36px;
+    }
+
+    .step-desc {
+      font-size: 0.875rem;
+      color: #9ca3af;
+      line-height: 1.65;
+    }
+
+    code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      background: #1c1f2e;
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: var(--accent2);
+    }
+
+    /* Tip box */
+    .tip {
+      background: #111820;
+      border: 1px solid #2a3a50;
+      border-left: 3px solid var(--accent3);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-top: 40px;
+      font-size: 0.875rem;
+      color: #9ca3af;
+      line-height: 1.7;
+    }
+
+    .tip strong {
+      color: var(--accent3);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Stagger cards */
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.2s; }
+    .card:nth-child(3) { animation-delay: 0.3s; }
+    .card:nth-child(4) { animation-delay: 0.4s; }
+
+    .step:nth-child(1) { animation-delay: 0.15s; }
+    .step:nth-child(2) { animation-delay: 0.3s; }
+    .step:nth-child(3) { animation-delay: 0.45s; }
+    .step:nth-child(4) { animation-delay: 0.6s; }
+    .step:nth-child(5) { animation-delay: 0.75s; }
+    .step:nth-child(6) { animation-delay: 0.9s; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <header>
+      <p class="eyebrow">Developer Reference</p>
+      <h1>Free Ways to Deploy<br/><span>Your Tools & HTML</span></h1>
+      <p class="subtitle">From quick demos to live sites — a curated guide to hosting your Claude-built tools without spending a dime.</p>
+    </header>
+
+    <!-- Static Hosting -->
+    <p class="section-label">Static HTML / CSS / JS</p>
+    <div class="card-grid">
+
+      <div class="card" style="--card-accent: #e8c97a;">
+        <div class="card-header">
+          <span class="card-title">GitHub Pages</span>
+          <span class="badge">Best for static files</span>
+        </div>
+        <p class="card-desc">The go-to storefront for code already in GitHub's warehouse. Push your files to a repo, flip one setting, and it's live at <code>username.github.io/repo-name</code>. Zero cost, custom domain support, handles traffic well.</p>
+        <div class="card-links">
+          <a href="https://pages.github.com" target="_blank" class="link-btn primary">→ pages.github.com</a>
+          <a href="https://docs.github.com/en/pages" target="_blank" class="link-btn">Docs</a>
+        </div>
+      </div>
+
+      <div class="card" style="--card-accent: #6ee7b7;">
+        <div class="card-header">
+          <span class="card-title">Netlify</span>
+          <span class="badge">Drag & drop deploy</span>
+        </div>
+        <p class="card-desc">The modern upgrade — drag-and-drop your HTML folder onto their site and it's live in seconds. Friendlier than GitHub Pages for pure static files, and gives you a shareable URL instantly.</p>
+        <div class="card-links">
+          <a href="https://netlify.com" target="_blank" class="link-btn primary">→ netlify.com</a>
+          <a href="https://docs.netlify.com" target="_blank" class="link-btn">Docs</a>
+        </div>
+      </div>
+
+      <div class="card" style="--card-accent: #93c5fd;">
+        <div class="card-header">
+          <span class="card-title">Vercel</span>
+          <span class="badge">Great for React too</span>
+        </div>
+        <p class="card-desc">Similar to Netlify with a generous free tier. Shines more when you eventually add a framework like React, but handles plain HTML just fine. Deploy from GitHub in one click.</p>
+        <div class="card-links">
+          <a href="https://vercel.com" target="_blank" class="link-btn primary">→ vercel.com</a>
+          <a href="https://vercel.com/docs" target="_blank" class="link-btn">Docs</a>
+        </div>
+      </div>
+
+      <div class="card" style="--card-accent: #f9a8d4;">
+        <div class="card-header">
+          <span class="card-title">CodePen / JSFiddle / StackBlitz</span>
+          <span class="badge">Quick demos & sharing</span>
+        </div>
+        <p class="card-desc">These are whiteboards, not storefronts — great for demos, sharing a single tool, or fast iteration. CodePen especially shines for polished one-page tools and is very shareable.</p>
+        <div class="card-links">
+          <a href="https://codepen.io" target="_blank" class="link-btn primary">→ CodePen</a>
+          <a href="https://jsfiddle.net" target="_blank" class="link-btn">JSFiddle</a>
+          <a href="https://stackblitz.com" target="_blank" class="link-btn">StackBlitz</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Backend -->
+    <p class="section-label">Tools That Need a Backend or Database</p>
+    <div class="card-grid">
+
+      <div class="card" style="--card-accent: #a78bfa;">
+        <div class="card-header">
+          <span class="card-title">Render & Railway</span>
+          <span class="badge">Free server tiers</span>
+        </div>
+        <p class="card-desc">Like renting a small apartment vs. buying a house — enough room for a side project with easy deploys straight from GitHub. Both have free tiers for simple servers.</p>
+        <div class="card-links">
+          <a href="https://render.com" target="_blank" class="link-btn primary">→ Render</a>
+          <a href="https://railway.app" target="_blank" class="link-btn">Railway</a>
+        </div>
+      </div>
+
+      <div class="card" style="--card-accent: #34d399;">
+        <div class="card-header">
+          <span class="card-title">Supabase</span>
+          <span class="badge">Free Postgres DB</span>
+        </div>
+        <p class="card-desc">Worth knowing if your tool needs to store data. Free Postgres database with a built-in UI and API — no separate backend required for many use cases.</p>
+        <div class="card-links">
+          <a href="https://supabase.com" target="_blank" class="link-btn primary">→ supabase.com</a>
+          <a href="https://supabase.com/docs" target="_blank" class="link-btn">Docs</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GitHub Guide -->
+    <p class="section-label">How to Use GitHub (Step by Step)</p>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-number">
+          <div class="step-dot">1</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">Create a free account</div>
+          <p class="step-desc">Go to <a href="https://github.com" target="_blank" style="color: var(--accent3);">github.com</a> and sign up. Your username becomes part of your public URL, so pick something recognizable.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">
+          <div class="step-dot">2</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">Create a new repository</div>
+          <p class="step-desc">Click the <strong style="color:var(--text)">+</strong> icon → <em>New repository</em>. Give it a name, set it to <strong style="color:var(--text)">Public</strong>, and check <em>Add a README file</em>. Think of a repo as a project folder in the cloud.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">
+          <div class="step-dot">3</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">Upload your HTML file</div>
+          <p class="step-desc">Inside the repo, click <em>Add file → Upload files</em>. Drag your <code>.html</code> file in. Name it <code>index.html</code> if you want it to be the default page. Commit the changes.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">
+          <div class="step-dot">4</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">Enable GitHub Pages</div>
+          <p class="step-desc">Go to <em>Settings → Pages</em>. Under <em>Source</em>, select your main branch and click Save. GitHub will give you a live URL at <code>username.github.io/repo-name</code> within a minute or two.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">
+          <div class="step-dot">5</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">Update your file anytime</div>
+          <p class="step-desc">Navigate to the file in your repo, click the pencil ✏️ icon to edit, or upload a new version. Every save ("commit") is version-controlled — you can always roll back. Think of commits as save points in a video game.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">
+          <div class="step-dot">6</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-body">
+          <div class="step-title">(Optional) Install Git locally</div>
+          <p class="step-desc">For faster workflows, install <a href="https://git-scm.com" target="_blank" style="color:var(--accent3);">Git</a> and use the terminal: <code>git clone</code> your repo, edit files locally, then <code>git push</code> to publish. Steeper learning curve but much faster once comfortable.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tip">
+      <strong>💡 Fastest path from Claude → Live URL</strong><br/>
+      Have Claude create a downloadable <code>.html</code> file → drag it into <a href="https://app.netlify.com/drop" target="_blank" style="color:var(--accent3);">Netlify Drop</a> → get a shareable link in under 60 seconds. No account required for a temporary link.
+    </div>
+
+  </div>
+</body>
+</html>
